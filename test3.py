@@ -1,54 +1,37 @@
 # test3.py
 
 # TO DO:
-# - Finish parameterizing the function with the range.
+
 
 # Import Packages
-from numpy.linalg import norm
-import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy.stats import entropy
-from math import sqrt
+import numpy as np
+from diststats import *
 
 # Initialize some stuff
 loc, scale = 0., 100.
-t = []
-arraylen = 1000
+samples = 60
 bincount = 29
 
-def kld(P,Q):
-    _P = np.array(P) / norm(P, ord=1)
-    _Q = np.array(Q) / norm(Q, ord=1)
-    return round(np.sum([v for v in _P * np.log2(_P/_Q) if (not np.isnan(v) and not np.isinf(v))]),12)
-
-def jsd(P,Q):
-    _P = np.array(P) / norm(P, ord=1)
-    _Q = np.array(Q) / norm(Q, ord=1)
-    M = 0.5 * (_P + _Q)
-    return round(0.5 * (kld(_P,M) + kld(_Q,M)),12)
-
-def rmse(P,Q):
-    _P = np.array(P)
-    _Q = np.array(Q)
-    return round(sqrt(np.mean([np.power(_P - _Q,2)])),12)
 
 
-def plotComp(pdist,qdist,bincount):
+def setBins(bincount,lbound,ubound):
+    # Define the bins we will use.
+    return [r * ((ubound-lbound)/bincount) for r in range(0,bincount + 1)]
 
-    mybins = [r * (100./bincount) for r in range(0,bincount + 1)]
+
+def plotComp(pdist,qdist,bins):
     # Create the histogram
-    pcount, pbins = np.histogram(pdist,mybins)
-    qcount, qbins = np.histogram(qdist,mybins)
+    pcount, pbins = np.histogram(pdist,bins)
+    qcount, qbins = np.histogram(qdist,bins)
 
-    #print(pcount)
-    #print(qcount)
     jsd1 = jsd(pcount,qcount)
     print("jsd = %f" % jsd1)
     print("rjsd = %f" % sqrt(jsd1))
     rmse1 = rmse(pcount,qcount)
     print("rmse = %f" % rmse1)
-    print("normed rmse = %f" % (rmse1/arraylen))
+    #print("normed rmse = %f" % (rmse1/np.sum(pcount)))
     
     # Settings for plot
     pos = list(range(len(pcount)))
@@ -73,7 +56,7 @@ def plotComp(pdist,qdist,bincount):
         qcount,
         width,
         alpha=0.5,
-        color='#F78F1E',
+        color='#3539B8',
         label="Q"
         )
 
@@ -96,14 +79,14 @@ def plotComp(pdist,qdist,bincount):
 
 
 # Build out the dummy data structure
-#psamp = pd.DataFrame(np.random.uniform(loc,scale,arraylen), columns = ['P'])
-#qsamp = pd.DataFrame(np.random.uniform(loc,scale,arraylen), columns = ['Q'])
-psamp = pd.DataFrame(np.random.normal(30,20,arraylen), columns = ['P'])
-qsamp = pd.DataFrame(np.random.normal(40,10,arraylen), columns = ['Q'])
+psamp = pd.DataFrame(np.random.uniform(loc,scale,samples), columns = ['P'])
+qsamp = pd.DataFrame(np.random.uniform(loc,scale,samples), columns = ['Q'])
+#psamp = pd.DataFrame(np.random.normal(30,20,samples), columns = ['P'])
+#qsamp = pd.DataFrame(np.random.normal(40,10,samples), columns = ['Q'])
 
 
-
-plotComp(psamp,qsamp,bincount)
+bins = setBins(bincount,loc,scale)
+plotComp(psamp,qsamp,bins)
 
 
 

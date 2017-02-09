@@ -1,7 +1,4 @@
-# test3.py
-
-# TO DO:
-
+# testErrorComp.py
 
 # Import Packages
 import matplotlib.pyplot as plt
